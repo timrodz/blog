@@ -85,7 +85,7 @@ p {
 }
 
 .blog-link:hover div .blog-link-title {
-  @apply text-teal-950 dark:text-neutral-200 transition-all;
+  @apply text-teal-950 dark:text-neutral-100 transition-all;
 }
 
 .blog-link:hover div .blog-link-title span {

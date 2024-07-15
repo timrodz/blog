@@ -30,10 +30,10 @@ export const metadata: Metadata = {
     template: "%s - Juan Rodríguez Morais - Blog",
   },
   openGraph: {
-    title: "Personal Blog",
+    title: "Juan Rodríguez Morais - Blog",
     description: "This is my personal blog.",
     url: baseUrl,
-    siteName: "Personal Blog",
+    siteName: "Juan Rodríguez Morais - Blog",
     locale: "en_US",
     type: "website",
   },

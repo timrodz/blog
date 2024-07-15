@@ -35,7 +35,7 @@
 html {
   min-width: 360px;
   background: var(--background);
-  @apply text-black dark:text-white dark:bg-stone-800;
+  @apply text-black dark:text-white dark:bg-stone-900;
 }
 
 h1 {
@@ -62,6 +62,10 @@ hr {
   @apply mb-6;
 }
 
+p {
+  @apply md:text-lg;
+}
+
 .prose .anchor {
   @apply absolute invisible no-underline;
 
@@ -76,16 +80,20 @@ hr {
   @apply visible;
 }
 
-.blog-link:hover div .blog-link-date {
-  @apply underline decoration-orange-400 dark:decoration-orange-600 underline-offset-2 decoration-[0.1em];
+.blog-link div .blog-link-title {
+  @apply text-teal-900 dark:text-neutral-300 tracking-tight;
 }
 
 .blog-link:hover div .blog-link-title {
-  @apply text-teal-900 dark:text-neutral-100;
+  @apply text-teal-950 dark:text-neutral-200 transition-all;
+}
+
+.blog-link:hover div .blog-link-title span {
+  @apply underline decoration-teal-900 dark:decoration-teal-500 underline-offset-2 decoration-[0.1em];
 }
 
 .prose a {
-  @apply hover:underline underline-offset-2  text-teal-800 dark:text-white;
+  @apply hover:underline underline-offset-2 decoration-teal-900 dark:decoration-teal-500 text-teal-900 hover:text-teal-950 transition-all dark:text-white;
 }
 
 .prose .anchor:after {
@@ -129,15 +137,15 @@ hr {
 }
 
 .prose h2 {
-  @apply text-3xl font-bold tracking-tight mt-6 mb-2 hover:underline decoration-orange-400 dark:decoration-orange-600 decoration-[0.1em];
+  @apply text-3xl font-bold tracking-tight mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-teal-500 decoration-[0.1em];
 }
 
 .prose h3 {
-  @apply text-2xl font-semibold tracking-tight mt-6 mb-2 hover:underline decoration-orange-400 dark:decoration-orange-600 decoration-[0.1em];
+  @apply text-2xl font-semibold tracking-tight mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-teal-500 decoration-[0.1em];
 }
 
 .prose h4 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2 hover:underline decoration-orange-400 dark:decoration-orange-600 decoration-[0.1em];
+  @apply text-xl font-medium tracking-tight mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-teal-500 decoration-[0.1em];
 }
 
 .prose strong {
@@ -150,6 +158,10 @@ hr {
 
 .prose ol {
   @apply list-decimal pl-6;
+}
+
+.prose li {
+  @apply md:text-lg text-zinc-700 dark:text-neutral-200;
 }
 
 .prose > :first-child {
@@ -191,9 +203,9 @@ footer ul li a {
 }
 
 .cta {
-  @apply text-teal-800 bg-teal-100 px-4 py-2 font-medium rounded-md decoration-teal-800;
+  @apply text-teal-800 bg-teal-100 dark:bg-teal-500 px-4 py-2 font-medium rounded-md decoration-teal-900;
 }
 
 .cta-subtle {
-  @apply text-teal-700 bg-teal-50 ring-teal-600 ring-[1px] px-4 py-2 font-medium rounded-md decoration-teal-800 decoration-1;
+  @apply text-teal-700 dark:text-white;
 }

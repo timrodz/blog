@@ -33,8 +33,8 @@ export function BlogPosts({ limit }: Props) {
               <p className="blog-link-date text-neutral-600 dark:text-neutral-300 tabular-nums font-mono">
                 {post.metadata.publishedAt}
               </p>
-              <p className="blog-link-title text-neutral-900 dark:text-neutral-100 tracking-tight">
-                {post.metadata.title}
+              <p className="blog-link-title">
+                <span className="">{post.metadata.title}</span>
               </p>
             </div>
           </Link>

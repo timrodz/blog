@@ -1,5 +1,4 @@
 import { BlogPosts } from "app/components/posts";
-import Link from "next/link";
 
 export default function Page() {
   return (
@@ -15,12 +14,6 @@ export default function Page() {
       </p>
       <div className="my-8">
         <BlogPosts />
-        <Link
-          href="/posts"
-          className="mt-2 inline-block cta-subtle hover:underline"
-        >
-          See all posts
-        </Link>
       </div>
     </section>
   );

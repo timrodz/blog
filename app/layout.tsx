@@ -26,8 +26,8 @@ const mono = MonoFont({
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Juan Rodríguez Morais",
-    template: "%s - Juan Rodríguez Morais - Portfolio",
+    default: "Juan Rodríguez Morais - Blog",
+    template: "%s - Juan Rodríguez Morais - Blog",
   },
   openGraph: {
     title: "Personal Blog",

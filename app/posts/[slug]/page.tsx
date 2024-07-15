@@ -89,8 +89,9 @@ export default function Blog({ params }: Props) {
       <h1 className="title font-bold text-3xl md:text-5xl tracking-tighter">
         {post.metadata.title}
       </h1>
-      <div className="flex justify-between items-center mt-2 mb-8 text-sm">
-        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+      <hr />
+      <div className="flex justify-between items-center mt-2 mb-8">
+        <p className="text-neutral-600 dark:text-neutral-300">
           Published on {formatDate(post.metadata.publishedAt)}
         </p>
       </div>

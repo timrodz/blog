@@ -1,0 +1,306 @@
+---
+title: "Hacktoberfest: How I Released A VS Code Extension With Azure DevOps"
+publishedAt: "2020-09-30"
+summary: "Learn how easy it is to develop and publish your own VS Code extensions"
+---
+
+During last year's [Hacktoberfest](https://hacktoberfest.digitalocean.com/), I decided to make a small, achievable extension for VS Code. It was a good way to learn TypeScript, work with people on Github projects, and most importantly: have fun!
+
+The extension is called [Light Switch](https://marketplace.visualstudio.com/items?itemName=timrodz.lightswitch) — It is a time based, light/dark theme switcher. When I published my first series of commits to get started, I also wrote a post about it on DEV. I was sure this would help me get traction and a small following of people that would _hopefully_ be willing to contribute in one way or another:
+
+The post was well-received, and it got the traction I wanted. Once the rush came down, I still needed to figure out how to:
+
+1. [Create tests](#tests).
+2. [Bundle the extension](#bundling).
+3. [Publish the extension](#publishing).
+4. [Set up a Continuous Integration (CI) pipline](#ci).
+
+Here's how I achieved it.
+
+## Writing tests 📝 <a name="tests"></a>
+
+If you're writing software, writing tests is an awesome way to ensure it will work. Since I did not have much time or experience with TypeScript, I made sure to focus my tests on the theme swapping logic:
+
+- Make sure the themes stay as day/night according to their times
+- Ensure a default "fallback" theme could be chosen if there was an error
+
+Since my logic mainly involves time, I focused on time conversions. This is an example of the tests I added:
+
+```typescript
+import * as assert from "assert";
+import * as dayjs from "dayjs";
+import { canSwitchToNightTheme } from "../../util/date";
+
+suite("Date Test Suite", () => {
+  test("Setting time through the extension", () => {
+    assert(!canSwitchToNightTheme("17:00", "16:00"));
+    assert(canSwitchToNightTheme("17:00", "17:00"));
+    assert(canSwitchToNightTheme("17:00", "17:01"));
+    assert(!canSwitchToNightTheme("17:00", "00:00"));
+    assert(canSwitchToNightTheme("17:00", "24:00"));
+    assert(canSwitchToNightTheme("17:00", "23:59"));
+  });
+});
+```
+
+Basic assertions, **check!**
+
+## Bundling the extension! 🚀 <a name="bundling"></a>
+
+I'm sure many of you have a love/hate relationship with webpack. Yes, it's great, and also painful. Luckily, Microsoft has excellent documentation on [how to bundle a VS Code extension](https://code.visualstudio.com/api/working-with-extensions/bundling-extension) - yay!
+
+### Handling dependencies
+
+```bash
+1. npm uninstall vscode
+2. npm i --save-dev webpack webpack-cli ts-loader vscode-test
+3. npm i --save-dev @types/vscode@1.37.0
+```
+
+1. Remove the `vscode` dependency, as it has been superseded by `vscode-test` — This will ensure your tests run on the Azure DevOps pipeline.
+2. Installed the required basic dependencies
+3. Added `@types/vscode@^1.37.0`. Depending on the version of your vscode engine, you will have to specify it as `@types/vscode@ENGINE_VERSION`.
+4. Removed the `postinstall` script of `package.json`. It is not needed anymore.
+
+### Creating the Webpack configuration
+
+With this configuration, builds will be (by default) output into the `dist/` folder at the root of the project. Nothing too fancy here!
+
+```javascript
+//@ts-check
+
+"use strict";
+
+const path = require("path");
+
+/**@type {import('webpack').Configuration}*/
+const config = {
+  target: "node",
+
+  entry: "./src/extension.ts",
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "extension.js",
+    libraryTarget: "commonjs2",
+    devtoolModuleFilenameTemplate: "../[resource-path]",
+  },
+  devtool: "source-map",
+  externals: {
+    vscode: "commonjs vscode",
+  },
+  resolve: {
+    extensions: [".ts", ".js"],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: "ts-loader",
+          },
+        ],
+      },
+    ],
+  },
+};
+module.exports = config;
+```
+
+### Adjusting the extension configuration files
+
+#### package.json
+
+I added a step called `test-compile` so it can compile our source for tests (Read why on the next section)
+
+```json
+"scripts": {
+  "vscode:prepublish": "webpack --mode production",
+  "compile": "webpack --mode production && npm run test-compile",
+  "watch": "webpack --mode development && tsc -watch -p ./",
+  "test": "node ./out/test/runTest.js",
+  "test-compile": "tsc -p ./",
+}
+```
+
+#### launch.json
+
+Even though the webpack build points to the `dist/` folder, tests are compiled to the `out/` folder, which means we have to compile the app (Refer to the `test-compile` command of `package.json`. Luckily, this can be specified on the `preLaunchTask`, so I made sure it ran `test-compile`.
+
+```json
+"configurations": [
+  {
+    "name": "Run Extension",
+    ...
+    "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+    "preLaunchTask": "npm: watch"
+  },
+  {
+    "name": "Extension Tests",
+    ...
+    "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
+    "preLaunchTask": "npm: test-compile"
+  }
+]
+```
+
+#### .vscodeignore
+
+Getting this one right was a bit difficult, here's why:
+
+You have to exclude `node_modules`. The caveat: If you have a dependency (not devDependency), you will have to include it. I had `moment` as a dependency, but was able to swap it for `dayjs`, even as a devDependency. _Woosh!_
+
+As a general rule, ignore everything that is not the source of the app (including icons/images your app uses).
+
+```text
+# folders
+.vscode/**
+.vscode-test/**
+src
+out
+node_modules
+**/tsconfig.json
+**/tslint.json
+**/*.map
+**/*.ts
+*.vsix
+
+# Specific files
+.gitignore
+webpack.config.js
+CONTRIBUTING.md
+package-lock.json
+.prettierrc
+
+# Special exclusions
+images
+!images/icon.png
+```
+
+### Making sure it runs!
+
+- I had to make sure my builds were compiling. By running `npm run compile` and `npm run test-compile`, they succeeded!
+
+## Publishing the extension ☁️ <a name="publishing"></a>
+
+The only dependency I needed was a global one: `npm install -g vsce`. [vsce](https://github.com/microsoft/vscode-vsce) is a CLI for managing VS Code extensions.
+
+Interestingly, this was the easiest part. I had to create an Azure DevOps organization, and I followed every step of this [tutorial](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/create-organization?view=azure-devops).
+
+When creating the marketplace publisher, I was prompted for my Personal Access Token, which I generated following [these steps](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token).
+
+My strategy for publishing would be:
+
+- Publish it first using `vsce publish` so the app was live
+- Set-up a Continuous Integration environment to automate the following deploys.
+
+### Making sure it runs!
+
+The cool thing of all this, you can install your builds locally! This is different to debugging your build directly from the **Launch** menu because it emulates the flow of downloading the build directly from the marketplace.
+
+The command `vsce package` triggers the `vscode:prepublish` script from `package.json` configuration. A `.vsix` file will be created at the root directory. Install the extension by running `code --install-extension extension-name.vsix`. Replace `extension-name` for the file generated by `vsce package`, i.e. `light-switch-0.1.0.vsix`.
+
+## Continuous Integration (CI) 🛠 <a name="ci"></a>
+
+Once my extension was live, I had to implement the most important part: a CI pipeline. This is a great DevOps practice, as it automates all your builds, and runs your tests on new changes - This ensures new code won't break the app before being able to merge it into the master branch.
+
+You can have a look at my pipeline [build summary](https://dev.azure.com/timrodz/Light%20Switch/_build?definitionId=1&_a=summary).
+
+Here are some key takeaways I learned:
+
+- Before setting up any CI pipeline, make sure your app works locally, and that every command behaves as intended.
+- You don't have to know how to use YAML files to set up a working pipeline. Microsoft offers [many templates to get started with](https://github.com/microsoft/azure-pipelines-yaml).
+- Azure DevOps allows you to build and deploy without having to create any artifacts/releases - This is awesome, and it saves a lot of time!
+
+## Setup
+
+### azure-pipelines.yml
+
+```yml
+# Builds from every branch, and tag.
+trigger:
+  branches:
+    include: ["*"]
+  tags:
+    include: ["*"]
+
+# Machines that it builds to
+strategy:
+  matrix:
+    linux:
+      imageName: "ubuntu-16.04"
+    mac:
+      imageName: "macos-10.13"
+    windows:
+      imageName: "vs2017-win2016"
+
+# Takes in the machines specified in the strategy.
+pool:
+  vmImage: $(imageName)
+
+steps:
+  # Installs Node.js
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "8.x"
+    displayName: "Install Node.js"
+
+  # Installs an X virtual framebuffer (https://en.wikipedia.org/wiki/Xvfb).
+  # Only required for running the VS Code in the Linux machine.
+  - bash: |
+      /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      echo ">>> Started xvfb"
+    displayName: Start xvfb
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+
+  # Run yarn (Install dependencies) and run the compile script.
+  # It also runs the tests and stops the pipeline if one test fails.
+  - bash: |
+      echo ">>> Compile vscode-test"
+      yarn && yarn compile
+      echo ">>> Run integration test"
+      yarn && yarn compile && yarn test
+    displayName: Run Tests
+    env:
+      DISPLAY: ":99.0"
+
+  # Publishes the extension to the marketplace.
+  - bash: |
+      echo ">>> Publish"
+      yarn deploy -p $(VSCODE_MARKETPLACE_TOKEN)
+    displayName: Publish
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['Agent.OS'], 'Linux'))
+```
+
+And here we have it!
+
+![Build pipeline on Azure DevOps](https://dev-to-uploads.s3.amazonaws.com/i/4ryfjd9yl532ao3u1b8j.png)
+
+> The last build had an error while building with Windows, but it was able to deploy the latest changes using the Linux image. See the [build output](https://dev.azure.com/timrodz/Light%20Switch/_build/results?buildId=25&view=results).
+
+#### Notes
+
+A YAML configuration can run as many commands as you want. Think of every `- bash: |` entry as a set of new commands that will run in a specified batch. It can execute bash commands i.e. `ls`, `pwd`, `echo`, etc.
+
+The last step, which publishes the extension, passes in a `$(VSCODE_MARKETPLACE_TOKEN)` variable. This is the **Personal Access Token (PAT)** we defined earlier on the [Publishing](#publishing) section. If my variable was named `secret`, then the script would run `yarn deploy -p $(secret)`.
+
+The last build step has a condition:
+
+```shell
+and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['Agent.OS'], 'Linux'))
+```
+
+This condition tells our pipeline to deploy with builds that meet the following requirements:
+
+- The building machine's OS is Linux (In my case: Ubuntu 16.04).
+- The commit has a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
+  - I solved my tagging by using [Semantic Versioning](https://docs.npmjs.com/about-semantic-versioning) via `npm version` command, i.e. `npm version major/minor/patch`. This is convenient because it updates the `package.json` version, and makes a commit with a tag:
+
+![Git commits showing tags](https://dev-to-uploads.s3.amazonaws.com/i/s7syvjkm8gzw0dpesd5s.png)
+
+## It's a wrap! 🌯
+
+The entire process did not take long, but figuring out the CI pipeline was the most complex part by far. Thanks to Microsoft's well-written documentation, I was able to put the pieces together.
+
+Check out [the official guide](https://code.visualstudio.com/api/get-started/your-first-extension).

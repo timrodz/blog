@@ -1,0 +1,313 @@
+---
+title: "Creating A Gatsby Portfolio That Shows Your Instagram Feed"
+publishedAt: "2020-03-03"
+summary: "Learn how to create a portfolio that shows real data from your Instagram feed, using Gatsby."
+---
+
+I created my first [Gatsby Portfolio Starter](https://www.gatsbyjs.org/starters/timrodz/gatsby-starter-instagram-baseweb/). It shows the latest Instagram posts from any user via the Instagram API, and implements [Base Web](https://baseweb.design), the Design System built by Uber.
+
+![Screenshot of the gatsby starter with a desktop, tablet and mobile view](https://i.imgur.com/mAi2AXB.jpg)
+
+In this post, I will show you how I quickly prototyped and built this starter. I will give you tips & tricks, caveats to look for (with their workarounds), and how you can get started with your starter (See what I did there? 👀)
+
+Click below to see the repository.
+
+github https://github.com/timrodz/gatsby-starter-instagram-baseweb no-readme
+
+## ❓ What is Gatsby?
+
+[Gatsby](https://www.gatsbyjs.org/) is a free and open-source framework based on React that helps developers build blazing-fast websites and apps. There are lots of [plugins](https://www.gatsbyjs.org/plugins/) and [starters](https://www.gatsbyjs.org/starters/?v=2), which are like themes you can build and hack on top of, and the community is simply amazing — How great!
+
+I have been toying around with Gatsby for over a month now. I re-designed and re-built [my portfolio](https://www.timrodz.com/) with it, and I'm also building a portfolio for a friend, who is a freelance photographer. This was the perfect opportunity to dive deep with Gatsby!
+
+![Desktop view of the website](https://dev-to-uploads.s3.amazonaws.com/i/quxifu4n3h9qistw2tr9.jpg)
+
+## 🤔 How does it work?
+
+Creating this starter was unsurprisingly easy - I say this due to nature and learning curve provided by Gatsby. For context, I am a beginner with web technologies.
+
+### Finding the right template
+
+I chose to begin using the [Gatsby Default Starter](https://www.gatsbyjs.org/starters/gatsbyjs/gatsby-starter-default/). It's production-ready and is considered the vanilla starter for Gatsby. Great to learn and build upon!
+
+### Connecting to Instagram
+
+The main feature of this website is that it can fetch and display Instagram posts. Luckily for me (and you), Gatsby has an [Instagram starter](https://www.gatsbyjs.org/packages/gatsby-source-instagram/)! It's incredibly easy to set up and offers two ways to get started.
+
+#### Public Scraping
+
+The Instagram API offers an option to scrape up to 12 posts from any public profile. This will be the option we're going to use.
+
+```js
+{
+  allInstaNode(sort: { fields: timestamp, order: DESC }, limit: 12) {
+    edges {
+      node {
+        id
+        caption
+        localFile {
+          childImageSharp {
+            fluid {
+              ...GatsbyImageSharpFluid
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### Scraping using an API Token
+
+If you want to scrape historical posts (Beyond 12), you will need credentials to authenticate with. Get started [here](https://www.gatsbyjs.org/packages/gatsby-source-instagram/#instagram-graph-api-token).
+
+This query will show us the latest 12 posts for our Instagram account, along with the `id` (Will be used for redirecting to the original post), `caption` and `localFile`, which contains the data required to show our image.
+
+### Choosing a design system
+
+After that, I was looking at design systems, because I wanted to **create** and **iterate** on a prototype with the least amount of setup. That's when I found [Base Web](https://baseweb.design), a design system created by Uber. The lightweight and minimalist approach to design made it perfect for this example.
+
+Features:
+
+- Robust components out of the box. From Date Pickers to simple blocks.
+- [Styletron](https://www.styletron.org) for styling. It uses a CSS-in-JS approach.
+- Extensibility through the [Overrides API](https://baseweb.design/guides/understanding-overrides) and [configurable Themes](https://baseweb.design/guides/theming/).
+- Built-in Accessibility.
+- Great performance thanks to the Styletron engine.
+
+Making responsive elements with BaseWeb is very easy. Here's how you would create a flexible grid that contains and shows images:
+
+```js
+const Gallery = () => (
+  <FlexGrid flexGridColumnCount={[1, 2, 3]}>{renderImages()}</FlexGrid>
+);
+```
+
+You will see `flexGridColumnCount` is surrounded by an array: `[1, 2, 3]`. This handles breakpoints automatically:
+
+- Small screen size: `flexGridColumnCount = 1`
+- Medium screen size: `flexGridColumnCount = 2`
+- Large screen size: `flexGridColumnCount = 3`
+
+#### Before you start
+
+There is **one caveat** we will have to get out the way: Gatsby uses [**hydration**](https://www.gatsbyjs.org/docs/react-hydration/), meaning it is Server-Side-Rendered (SSR) to static content with a React runtime. If either code you use, or a plugin access variables such as `window` or `document`, you will have some trouble when building the app.
+
+Let's image this is our app's entry point:
+
+```js
+import { Client as Styletron } from "styletron-engine-atomic";
+import { Provider as StyletronProvider } from "styletron-react";
+import { LightTheme, BaseProvider, styled } from "baseui";
+import * as React from "react";
+
+const engine = new Styletron();
+
+export default function EntryPoint() {
+  return (
+    <StyletronProvider value={engine}>
+      <BaseProvider theme={LightTheme}>
+        <h1>Hello!</h1>
+      </BaseProvider>
+    </StyletronProvider>
+  );
+}
+```
+
+Looks simple, right? It even works via `gatsby develop`. The problem lies when building the app via `gatsby build`, as it will throw an error saying `document is undefined`, pointing to the `styletron-engine-atomic` package. Bummer! Or, is it?
+
+If you point to the code that is breaking, you will indeed see that `styletron-engine-atomic` is accessing the `document` element, and this is an important part of understanding Gatsby's ecosystem. These elements **only** live inside the browser.
+
+To fix this issue, we can wait until we're in the browser and then load `styletron-engine-atomic`. With the magic of [React hooks](https://reactjs.org/docs/hooks-intro.html) (`useEffect` and `useState`), we can tell our app to `import` the library once the component mounts, meaning we are inside a browser.
+
+```js
+import { Provider as StyletronProvider } from "styletron-react";
+import { LightTheme, BaseProvider, styled } from "baseui";
+import * as React from "react";
+
+export default function EntryPoint() {
+  const [engine, setEngine] = React.useState(null);
+
+  React.useEffect(() => {
+    // Once the `styletron-engine-atomic` library imports
+    // We will grab its content and create a new client through it
+    import("styletron-engine-atomic").then((styletron) => {
+      const clientEngine = new styletron.Client();
+      setEngine(clientEngine);
+    });
+  }, []);
+
+  if (!engine) return null;
+
+  return (
+    <StyletronProvider value={engine}>
+      <BaseProvider theme={LightTheme}>
+        <h1>Hello!</h1>
+      </BaseProvider>
+    </StyletronProvider>
+  );
+}
+```
+
+With those changes in mind, this web app is ready to be built.
+
+## 🏋️ Getting Gatsby to do the heavy lifting
+
+An entry point for most Gatsby apps will be the `gatsby-config.js` file. You can specify the site metadata and set up your plugins. In this case, I only grabbed a few extra plugins (besides the default ones):
+
+- [gatsby-source-instagram](https://www.gatsbyjs.org/packages/gatsby-source-instagram/?=source-instagram): Required to fetch and show data via the Instagram API.
+- [gatsby-plugin-styletron](https://www.gatsbyjs.org/packages/gatsby-plugin-styletron/?=styletron): Required so Base Web's engine can work along with Styletron and Gatsby. [Read more](https://www.styletron.org/getting-started/#with-gatsby).
+- [gatsby-plugin-alias-imports](https://www.gatsbyjs.org/packages/gatsby-plugin-alias-imports/): Optional but handy tool to create shortcuts for imports, i.e.:
+
+```js
+// -- gatsby-config.js
+{
+  resolve: `gatsby-plugin-alias-imports`,
+  options: {
+    alias: {
+      components: `${__dirname}/src/components`,
+      data: `${__dirname}/data/`
+    }
+  }
+}
+
+// -- script.js
+// Before
+import { title } from '../../data/config';
+import { Component } from '../components/Component';
+
+// After
+import { title } from 'data/config';
+import { Component } from 'components';
+```
+
+### Converting the app into a PWA (Progressive Web App)
+
+Converting your app into a PWA is the hot thing, and for good reason. Google sums up [what PWAs are](https://web.dev/what-are-pwas/) pretty well.
+
+With Gatsby, this is how _easy_ it was to convert this app into a PWA:
+
+- Enable plugin [gatsby-plugin-offline](https://www.gatsbyjs.org/packages/gatsby-plugin-offline/) inside `gatsby-config.js`.
+- Create a `gatsby-browser.js` file. We will need to add a callback to the [onServiceWorkerUpdateReady](https://www.gatsbyjs.org/docs/browser-apis/#onServiceWorkerUpdateReady) function which will tell our application's `window` to reload.:
+
+```js
+export const onServiceWorkerUpdateReady = () => {
+  window.location.reload(true);
+};
+```
+
+And boom - Once your website is built, you will have the basics of a PWA good to go! Here is the Google [Lighthouse](https://developers.google.com/web/tools/lighthouse) audit score.
+
+![Google Lighthouse Audit score](https://dev-to-uploads.s3.amazonaws.com/i/vmhnc6m656gm6vc6rtut.jpg)
+
+### Handling data
+
+To ease things up and keep the most important variables in one place, I created a `data/config.js` file. We can add things like the site's title, description, author, social links and other metadata. These variables will also power the **SEO** component!
+
+#### SEO
+
+I got the idea of using [schema.org]() organizations from [Smakosh](https://smakosh.com/seo-in-react-apps).
+
+```js
+import Thumbnail from "static/images/thumbnail.png";
+
+import {
+  address,
+  contact,
+  foundingDate,
+  legalName,
+  logo,
+  socialLinks,
+  url,
+} from "data/config";
+
+const structuredDataOrganization = `{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "legalName": "${legalName}",
+  "url": "${url}",
+  "logo": "${logo}",
+  "foundingDate": "${foundingDate}",
+  "founders": [{
+    "@type": "Person",
+    "name": "${legalName}"
+  }],
+  "contactPoint": [{
+    "@type": "ContactPoint",
+    "email": "${contact.email}",
+    "contactType": "customer service"
+  }],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "${address.city}",
+    "addressCountry": "${address.country}"
+  },
+  "sameAs": [
+    "${socialLinks.instagram}",
+    "${socialLinks.twitter}",
+  ]
+}`;
+```
+
+To inject it, Gatsby provides us with a [React Helmet](https://github.com/nfl/react-helmet) that can be edited. We have to pass the data in the form of an `application/ld+json` script.
+
+```js
+const SEO = ({ description, lang, meta, title }) => {
+  const { site } = useStaticQuery(graphql`
+    {
+      site {
+        siteMetadata {
+          title
+          description
+          author
+        }
+      }
+    }
+  `);
+
+  const metaDescription = description || site.siteMetadata.description;
+
+  return (
+    <Helmet>
+      <script type="application/ld+json">{structuredDataOrganization}</script>
+    </Helmet>
+  );
+};
+```
+
+### Changing the media query breakpoints
+
+It's very simple to override themes with Base Web. Their [custom breakpoints example](https://baseweb.design/posts/responsive-web/#custom-breakpoints) was all I needed.
+
+```js
+import { LightTheme } from "baseui";
+
+// Specify your custom breakpoint sizes here
+const breakpoints = Object.freeze({
+  small: 769,
+  medium: 1024,
+  large: 1216,
+});
+
+const ResponsiveTheme = Object.keys(breakpoints).reduce(
+  (acc, key) => {
+    acc.mediaQuery[
+      key
+    ] = `@media screen and (min-width: ${breakpoints[key]}px)`;
+    return acc;
+  },
+  {
+    breakpoints,
+    mediaQuery: {},
+  }
+);
+
+export default { ...LightTheme, ...ResponsiveTheme };
+```
+
+## 🌯 It's a wrap!
+
+Creating this project was a great way to learn Gatsby and how it works under the hood. It's a Framework that gets comfortable very quickly and allows you to do and focus on creating your web apps. It does this by giving you the tools you need, when you need them, and comes with amazing built-in configurations that are production-ready.
+
+In terms of Base Web, it's a great design system to build apps and prototypes with, and can easily be overridable. I especially like that it does not have many components that commonly bloat web app - It has the right ones you (and I) probably need.

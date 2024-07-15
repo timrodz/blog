@@ -1,4 +1,6 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 ::selection {
   background-color: #47a3f3;
@@ -6,6 +8,7 @@
 }
 
 :root {
+  --background: #fdfcfa;
   --sh-class: #2d5e9d;
   --sh-identifier: #354150;
   --sh-sign: #8996a3;
@@ -31,6 +34,32 @@
 
 html {
   min-width: 360px;
+  background: var(--background);
+  @apply text-black dark:text-white dark:bg-stone-800;
+}
+
+h1 {
+  @apply text-4xl md:text-5xl text-teal-600 font-semibold mb-3 dark:text-white;
+}
+
+h2 {
+  @apply text-3xl md:text-4xl text-teal-800 font-semibold mt-4 mb-3 dark:text-white;
+}
+
+h3 {
+  @apply text-2xl md:text-3xl text-teal-700 font-semibold mt-4 mb-3 dark:text-white;
+}
+
+h4 {
+  @apply text-base text-teal-700 font-normal mt-4 mb-3 dark:text-white;
+}
+
+a {
+  @apply hover:cursor-pointer decoration-orange-400 dark:decoration-orange-600 underline-offset-2 decoration-[0.1em] transition-all;
+}
+
+hr {
+  @apply mb-6;
 }
 
 .prose .anchor {
@@ -47,17 +76,25 @@ html {
   @apply visible;
 }
 
+.blog-link:hover div .blog-link-date {
+  @apply underline decoration-orange-400 dark:decoration-orange-600 underline-offset-2 decoration-[0.1em];
+}
+
+.blog-link:hover div .blog-link-title {
+  @apply text-teal-900 dark:text-neutral-100;
+}
+
 .prose a {
-  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em];
+  @apply hover:underline underline-offset-2  text-teal-800 dark:text-white;
 }
 
 .prose .anchor:after {
-  @apply text-neutral-300 dark:text-neutral-700;
-  content: '#';
+  @apply text-neutral-300 dark:text-neutral-500;
+  content: "#";
 }
 
 .prose *:hover > .anchor {
-  @apply visible;
+  @apply visible no-underline;
 }
 
 .prose pre {
@@ -65,7 +102,7 @@ html {
 }
 
 .prose code {
-  @apply px-1 py-0.5 rounded-lg;
+  @apply px-1 py-0.5 rounded-lg font-mono;
 }
 
 .prose pre code {
@@ -75,7 +112,7 @@ html {
 }
 
 .prose code span {
-  @apply font-medium;
+  font-weight: 500;
 }
 
 .prose img {
@@ -84,23 +121,23 @@ html {
 }
 
 .prose p {
-  @apply my-4 text-neutral-800 dark:text-neutral-200;
+  @apply my-4 md:text-lg text-zinc-700 dark:text-neutral-200;
 }
 
 .prose h1 {
-  @apply text-4xl font-medium tracking-tight mt-6 mb-2;
+  @apply text-4xl font-bold tracking-tight mt-6 mb-2;
 }
 
 .prose h2 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2;
+  @apply text-3xl font-bold tracking-tight mt-6 mb-2 hover:underline decoration-orange-400 dark:decoration-orange-600 decoration-[0.1em];
 }
 
 .prose h3 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2;
+  @apply text-2xl font-semibold tracking-tight mt-6 mb-2 hover:underline decoration-orange-400 dark:decoration-orange-600 decoration-[0.1em];
 }
 
 .prose h4 {
-  @apply text-lg font-medium tracking-tight mt-6 mb-2;
+  @apply text-xl font-medium tracking-tight mt-6 mb-2 hover:underline decoration-orange-400 dark:decoration-orange-600 decoration-[0.1em];
 }
 
 .prose strong {
@@ -131,8 +168,8 @@ pre {
 }
 
 /* Remove Safari input shadow on mobile */
-input[type='text'],
-input[type='email'] {
+input[type="text"],
+input[type="email"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -147,4 +184,16 @@ table {
 
 .title {
   text-wrap: balance;
+}
+
+footer ul li a {
+  @apply font-mono;
+}
+
+.cta {
+  @apply text-teal-800 bg-teal-100 px-4 py-2 font-medium rounded-md decoration-teal-800;
+}
+
+.cta-subtle {
+  @apply text-teal-700 bg-teal-50 ring-teal-600 ring-[1px] px-4 py-2 font-medium rounded-md decoration-teal-800 decoration-1;
 }

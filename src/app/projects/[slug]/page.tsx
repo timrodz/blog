@@ -136,8 +136,8 @@ export default function Blog({ params }: Props) {
         )}
         <Image
           src={`${metadata.imageUrl}`}
-          width={400}
-          height={300}
+          width={600}
+          height={0}
           alt={metadata.imageAlt}
           className="rounded shadow-xl"
         />

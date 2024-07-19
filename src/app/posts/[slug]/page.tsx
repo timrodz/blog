@@ -32,11 +32,13 @@ export function generateMetadata({ params }: Props) {
     ? image
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`;
 
+  const betterTitle = `${title} - Juan Rodríguez Morais - Blog`;
+
   return {
-    title,
+    title: betterTitle,
     description,
     openGraph: {
-      title,
+      title: betterTitle,
       description,
       type: "article",
       publishedTime,

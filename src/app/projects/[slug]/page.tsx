@@ -26,18 +26,24 @@ export function generateMetadata({ params }: Props) {
   const {
     title,
     publishedAt: publishedTime,
-    type: description,
+    type,
+    summary,
     imageUrl,
+    technologies,
   } = post.metadata;
   const ogImage = imageUrl
     ? imageUrl
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`;
 
+  const betterTitle = `${title} - Juan Rodríguez Morais - Blog`;
+  const description =
+    summary ?? `${type} ${technologies && `/ Tech stack: ${technologies}`}`;
+
   return {
-    title,
+    title: betterTitle,
     description,
     openGraph: {
-      title,
+      title: betterTitle,
       description,
       type: "article",
       publishedTime,

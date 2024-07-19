@@ -11,6 +11,7 @@ type BlogPostMetadata = {
 type ProjectMetadata = {
   title: string;
   publishedAt: string;
+  summary?: string;
   imageUrl: string;
   imageAlt: string;
 

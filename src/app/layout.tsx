@@ -1,22 +1,23 @@
 import "./global.css";
-import type { Metadata } from "next";
-import { Navbar } from "../components/nav";
+
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import Footer from "../components/footer";
+import type { Metadata } from "next";
+import { JetBrains_Mono as MonoFont } from "next/font/google";
+import localFont from "next/font/local";
+
+import Footer from "@/components/footer";
+import { Navbar } from "@/components/nav";
 import { baseUrl } from "./sitemap";
-import { GoogleAnalytics } from "@next/third-parties/google";
 
-import {
-  Inter as SansFont,
-  JetBrains_Mono as MonoFont,
-} from "next/font/google";
-
-const sans = SansFont({
-  subsets: ["latin"],
+// Font files can be colocated inside of `pages`
+const sans = localFont({
+  src: "./fonts/mona-sans.woff2",
   variable: "--font-sans",
-  weight: ["400", "500", "600", "700"],
+  weight: "400 600 700 800",
 });
+
 const mono = MonoFont({
   subsets: ["latin"],
   variable: "--font-mono",

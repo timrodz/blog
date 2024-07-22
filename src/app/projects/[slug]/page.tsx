@@ -102,9 +102,7 @@ export default function Blog({ params }: Props) {
           }),
         }}
       />
-      <h1 className="title font-bold text-3xl md:text-5xl tracking-tighter">
-        {metadata.title}
-      </h1>
+      <h1 className="title font-bold text-3xl md:text-5xl">{metadata.title}</h1>
       <hr />
       <div className="fmt-2 mb-8 flex flex-col gap-4 text-neutral-600 dark:text-neutral-400">
         <ul className="list-disc ml-6">

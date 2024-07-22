@@ -8,7 +8,7 @@ export const metadata = {
 export default function Page() {
   return (
     <section>
-      <h1>Projects</h1>
+      <h1>Projects 🌿</h1>
       <hr />
       <Projects />
     </section>

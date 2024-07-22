@@ -5,7 +5,7 @@ export function Projects() {
   const projects = getProjects();
 
   return (
-    <div>
+    <div className="mb-8">
       {projects
         .sort((a, b) => {
           if (

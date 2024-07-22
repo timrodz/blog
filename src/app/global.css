@@ -39,11 +39,11 @@ html {
 }
 
 h1 {
-  @apply text-4xl md:text-5xl text-teal-600 font-semibold mb-4 dark:text-white;
+  @apply text-4xl md:text-5xl text-teal-600 font-extrabold mb-4 dark:text-white;
 }
 
 h2 {
-  @apply text-3xl md:text-4xl text-teal-700 font-semibold mt-4 mb-4 dark:text-white;
+  @apply text-3xl md:text-4xl text-teal-700 font-bold mt-4 mb-4 dark:text-white;
 }
 
 h3 {
@@ -51,7 +51,7 @@ h3 {
 }
 
 h4 {
-  @apply text-base text-teal-800 font-normal mt-4 mb-3 dark:text-white;
+  @apply text-base text-teal-800 font-semibold mt-4 mb-3 dark:text-white;
 }
 
 a {
@@ -63,7 +63,7 @@ hr {
 }
 
 p {
-  @apply md:text-lg;
+  @apply md:text-lg font-normal text-zinc-700 dark:text-neutral-200;
 }
 
 li {
@@ -89,11 +89,11 @@ li {
 }
 
 .blog-link div .blog-link-title {
-  @apply text-teal-900 dark:text-neutral-300 tracking-tight;
+  @apply text-teal-800 dark:text-neutral-300 tracking-tight font-semibold;
 }
 
 .blog-link div .blog-link-subtitle {
-  @apply text-neutral-600 dark:text-neutral-400 tracking-tight;
+  @apply text-neutral-500 dark:text-neutral-400 tracking-normal;
 }
 
 .blog-link:hover div .blog-link-title {
@@ -145,19 +145,19 @@ li {
 }
 
 .prose h1 {
-  @apply text-4xl font-bold tracking-tight mt-6 mb-2;
+  @apply text-4xl font-bold mt-6 mb-2;
 }
 
 .prose h2 {
-  @apply text-3xl font-bold tracking-tight mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-neutral-500 decoration-[0.1em];
+  @apply text-3xl font-bold mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-neutral-500 decoration-[0.1em];
 }
 
 .prose h3 {
-  @apply text-2xl font-semibold tracking-tight mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-neutral-500 decoration-[0.1em];
+  @apply text-2xl font-semibold mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-neutral-500 decoration-[0.1em];
 }
 
 .prose h4 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-neutral-500 decoration-[0.1em];
+  @apply text-xl font-semibold mt-6 mb-2 hover:underline decoration-teal-900 dark:decoration-neutral-500 decoration-[0.1em];
 }
 
 .prose strong {
@@ -220,4 +220,35 @@ footer ul li a {
 
 .cta-subtle {
   @apply text-teal-700 dark:text-white;
+}
+
+.polaroid-gallery {
+  @apply mt-10 px-5 lg:px-0 items-center flex flex-col sm:flex-row gap-10;
+}
+
+.polaroid-container {
+  @apply p-2 border-[1px] h-full max-w-[300px] rounded-sm inline-block bg-white shadow-lg pointer-events-none;
+}
+
+.polaroid-container p {
+  @apply px-1 text-center !text-3xl !my-1;
+}
+
+.polaroid {
+  display: inline-block;
+  position: relative;
+}
+
+.polaroid img {
+  @apply block w-full rounded-sm;
+}
+
+.polaroid:after {
+  content: "";
+  background: radial-gradient(
+    rgba(255, 255, 255, 0) 60%,
+    rgba(0, 0, 0, 0.1) 80%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  @apply absolute top-0 left-0 w-full h-full block rounded-sm;
 }

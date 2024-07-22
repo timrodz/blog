@@ -31,14 +31,14 @@ const footerItems: {
 export default function Footer() {
   return (
     <footer className="mt-16 mb-20">
-      <ul className="font-sm flex flex-col gap-4 text-neutral-600 md:flex-row dark:text-neutral-300">
+      <ul className="flex flex-col gap-4 text-neutral-600 md:flex-row dark:text-neutral-300">
         {Object.entries(footerItems).map(([path, { name, icon }]) => (
           <li key={name}>
             <Link
               rel="noopener noreferrer"
               target="_blank"
               href={path}
-              className="hover:underline flex items-center gap-2 transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
+              className="text-base hover:underline flex items-center gap-2 transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
             >
               {icon ? icon : <ArrowIcon />}
               {name}

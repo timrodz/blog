@@ -1,8 +1,12 @@
-export function ArrowIcon() {
+type Props = {
+  size?: number;
+};
+
+export function ArrowIcon({ size = 10 }: Props) {
   return (
     <svg
-      width="10"
-      height="10"
+      width={size}
+      height={size}
       viewBox="0 0 12 12"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

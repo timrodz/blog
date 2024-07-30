@@ -1,4 +1,6 @@
 import { baseUrl } from "@/app/sitemap";
+import { ArrowIcon } from "@/components/arrow-icon";
+import { TechStack } from "@/components/tech-stack";
 import { formatDate, getProjects } from "@utils/mdx";
 import Image from "next/image";
 import Link from "next/link";
@@ -72,11 +74,8 @@ export default function Blog({ params }: Props) {
 
   const { metadata, content, slug } = project;
 
-  const techStack =
-    metadata.technologies
-      ?.replaceAll('"', "")
-      .split(",")
-      .map((s) => s.trim()) ?? [];
+  const technologies =
+    metadata.technologies?.split(",").map((s) => s.trim()) ?? [];
 
   return (
     <section>
@@ -104,7 +103,8 @@ export default function Blog({ params }: Props) {
       />
       <h1 className="title font-bold text-3xl md:text-5xl">{metadata.title}</h1>
       <hr />
-      <div className="fmt-2 mb-8 flex flex-col gap-4 text-neutral-600 dark:text-neutral-400">
+      <div className="fmt-2 mb-8 flex flex-col gap-4 text-neutral-600 dark:text-neutral-300">
+        <p className="text-xl font-medium">Overview</p>
         <ul className="list-disc ml-6">
           <li>
             Project type: <span className="font-medium">{metadata.type}</span>
@@ -133,22 +133,38 @@ export default function Blog({ params }: Props) {
             </li>
           )}
         </ul>
-        {metadata.url && (
-          <Link href={metadata.url} className="cta self-start">
-            Click here to see the project in action
-          </Link>
+        {technologies && (
+          <div>
+            <p className="mb-2 text-xl font-medium">Technology stack</p>
+            <TechStack technologies={technologies} />
+          </div>
         )}
-        <Image
-          src={`${metadata.imageUrl}`}
-          width={600}
-          height={0}
-          alt={metadata.imageAlt}
-          className="rounded shadow-xl"
-        />
+
+        {metadata.imageUrl && (
+          <Image
+            src={`${metadata.imageUrl}`}
+            width={600}
+            height={0}
+            alt={metadata.imageAlt}
+            className="rounded-lg shadow-xl"
+            priority
+          />
+        )}
       </div>
       <article className="prose">
         <CustomMDX source={content} />
       </article>
+      {metadata.url && (
+        <Link
+          rel="noopener noreferrer"
+          target="_blank"
+          href={metadata.url}
+          className="cta inline-flex items-center gap-2 mt-6"
+        >
+          <ArrowIcon />
+          Click here to see the project in action
+        </Link>
+      )}
     </section>
   );
 }

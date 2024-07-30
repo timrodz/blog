@@ -137,7 +137,7 @@ li {
 
 .prose img {
   /* Don't apply styles to next/image */
-  @apply m-0;
+  @apply m-0 mb-6;
 }
 
 .prose p {
@@ -231,7 +231,7 @@ footer ul li a {
 }
 
 .polaroid-container p {
-  @apply px-1 text-center !text-3xl !my-1;
+  @apply px-1 text-center !text-3xl !my-1 text-stone-800;
 }
 
 .polaroid {
@@ -251,4 +251,8 @@ footer ul li a {
     rgba(0, 0, 0, 0.2) 100%
   );
   @apply absolute top-0 left-0 w-full h-full block rounded-sm;
+}
+
+.technologies span {
+  @apply text-slate-600 text-sm font-mono font-medium bg-white ring-[1px] ring-slate-300 rounded-md px-2 leading-8 mr-2 my-1 inline-block text-center;
 }

@@ -105,7 +105,7 @@ li {
 }
 
 .prose a {
-  @apply hover:underline underline-offset-2 decoration-teal-900 dark:decoration-teal-500 text-teal-900 hover:text-teal-950 dark:hover:text-white transition-all dark:text-white;
+  @apply hover:underline underline-offset-2 decoration-teal-900 dark:decoration-teal-500 text-teal-800 hover:text-teal-950 dark:hover:text-white transition-all dark:text-white;
 }
 
 .prose .anchor:after {

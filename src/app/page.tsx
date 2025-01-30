@@ -7,7 +7,7 @@ export default function Page() {
       <h1>Welcome 🦥</h1>
       <hr />
       <p className="mb-4">
-        {`I'm a Software Engineer with 6+ years of professional experience, primarily 
+        {`I'm a Software Engineer with 7+ years of professional experience, primarily 
           focusing on SaaS products for small to medium-sized businesses (including startups).
           I'm currently located in Auckland, New Zealand, working with The Boundary as a Senior Software Engineer.
           My preferred tech stack is TypeScript, React, Node, AWS, and Elixir + Phoenix. I also

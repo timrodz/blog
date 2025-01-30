@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     default: "Juan Rodríguez Morais - Blog",
     template: "%s - Juan Rodríguez Morais - Blog",
   },
-  description: `Juan is a Software Engineer with 6+ years of professional experience, primarily
+  description: `Juan is a Software Engineer with 7+ years of professional experience, primarily
   focusing on SaaS products for small to medium-sized businesses (including startups). He is located in 
   Auckland, New Zealand, working with The Boundary as a Senior Software Engineer. Juan's preferred tech 
   stack is TypeScript, React, Node, AWS, and Elixir + Phoenix. He also has experience with leading 
